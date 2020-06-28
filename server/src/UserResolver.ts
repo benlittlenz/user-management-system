@@ -1,3 +1,5 @@
+import { createRefreshToken, createuserToken } from "./createTokens";
+import { UserContext } from "./UserContext";
 import {
   Resolver,
   Query,
@@ -6,20 +8,23 @@ import {
   Field,
   ObjectType,
   Ctx,
-  UseMiddleware
+  UseMiddleware,
+  Int,
 } from "type-graphql";
 import "reflect-metadata";
 import { hash, compare } from "bcryptjs";
-
 import { User } from "./entity/User";
 import { isLoggedIn } from "./isLoggedIn";
-import { UserContext } from "./UserContext";
-import { createRefreshToken, createAccessToken } from "./createTokens";
+import { getConnection } from "typeorm";
+import { verify } from "jsonwebtoken";
 
 @ObjectType()
 class LoginResponse {
   @Field()
-  accessToken: string;
+  userToken: string;
+
+  @Field(() => User)
+  user: User;
 }
 
 @Resolver()
@@ -32,13 +37,43 @@ export class UserResolver {
   @Query(() => String)
   @UseMiddleware(isLoggedIn)
   bye(@Ctx() { payload }: UserContext) {
-    console.log(payload)
-    return `Your id is ${payload!.userId}`;
+    console.log(payload);
+    return `YOur id is ${payload!.userId}`;
   }
 
   @Query(() => [User])
   users() {
     return User.find();
+  }
+
+  @Query(() => User, { nullable: true })
+  me(@Ctx() context: UserContext) {
+    const authorization = context.req.headers["authorization"];
+
+    if (!authorization) return null;
+
+
+    try {
+      const token = authorization.split(" ")[1];
+      const payload: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
+      return User.findOne(payload.userId);
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { res }: UserContext) {
+    res.cookie("gdsfs", "");
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async revokeRefreshTokens(@Arg("userId", () => Int) userId: number) {
+    await getConnection()
+      .getRepository(User)
+      .increment({ user_id: userId }, "tokenVersion", 1);
+    return true;
   }
 
   @Mutation(() => LoginResponse)
@@ -56,15 +91,14 @@ export class UserResolver {
     if (!valid) throw new Error("Could not find user");
 
     //login successfull
-
     res.cookie("gdsfs", createRefreshToken(user), {
       httpOnly: true,
       path: "/refresh_token"
     });
 
     return {
-      accessToken: createAccessToken(user),
-      //user
+      userToken: createuserToken(user),
+      user
     };
   }
 
