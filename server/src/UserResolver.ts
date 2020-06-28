@@ -5,10 +5,16 @@ import {
   Arg,
   Field,
   ObjectType,
+  Ctx,
+  UseMiddleware
 } from "type-graphql";
 import "reflect-metadata";
 import { hash, compare } from "bcryptjs";
+
 import { User } from "./entity/User";
+import { isLoggedIn } from "./isLoggedIn";
+import { UserContext } from "./UserContext";
+import { createRefreshToken, createAccessToken } from "./createTokens";
 
 @ObjectType()
 class LoginResponse {
@@ -20,7 +26,14 @@ class LoginResponse {
 export class UserResolver {
   @Query(() => String)
   hello() {
-    return "HI!!!";
+    return "Hey"
+  }
+
+  @Query(() => String)
+  @UseMiddleware(isLoggedIn)
+  bye(@Ctx() { payload }: UserContext) {
+    console.log(payload)
+    return `Your id is ${payload!.userId}`;
   }
 
   @Query(() => [User])
@@ -32,19 +45,26 @@ export class UserResolver {
   async login(
     @Arg("email") email: string,
     @Arg("password") password: string,
+    @Ctx() { res }: UserContext,
   ): Promise<LoginResponse> {
     const user = await User.findOne({ where: { email } });
 
     if (!user) throw new Error("No such user exists ");
 
-    const valid = compare(password, user.password);
+    const valid = await compare(password, user.password);
 
     if (!valid) throw new Error("Could not find user");
 
     //login successfull
 
+    res.cookie("gdsfs", createRefreshToken(user), {
+      httpOnly: true,
+      path: "/refresh_token"
+    });
+
     return {
-      accessToken: "",
+      accessToken: createAccessToken(user),
+      //user
     };
   }
 
