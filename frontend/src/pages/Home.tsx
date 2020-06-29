@@ -19,10 +19,21 @@ interface Props { }
 export const Home: React.FC<Props> = () => {
     const { data, loading } = useQuery(GET_USERS)
 
-    console.log(data)
+    if(loading) return <div>Loading..</div>
     return (
         <div>
-            Home page
+            <h1>Users</h1>
+
+            <ul>
+                {data.users.map((user: any) => {
+                    return (
+                        <li key={user.id}>
+                            Name: {user.firstName} {user.lastName}
+                            <p>{user.email}</p>
+                        </li>
+                    )
+                })}
+            </ul>
         </div>
     )
 }
