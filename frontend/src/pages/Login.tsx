@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 import { RouteComponentProps } from 'react-router-dom';
+import { SetAccessToken } from '../UserToken';
 
 const LOGIN_USER = gql`
     mutation Login($email: String!, $password: String!) {
@@ -26,8 +27,13 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
                 }
             })
 
-            //On successful register, redirect user to home page
+            //On successful register, redirect user to home page and store user access token in a variable
             console.log(response)
+
+            if(response && response.data) {
+                SetAccessToken(response.data.login.userToken);
+            }
+            
             history.push('/')
 
         }}>
