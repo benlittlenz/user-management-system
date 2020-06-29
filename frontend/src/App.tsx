@@ -1,14 +1,31 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { Router } from './Router'
+import { SetAccessToken } from './UserToken';
 
-function App() {
-  
+export const App: React.FC = () => {
+  const [loading, setLoading] = useState(true);
 
-  // if (loading) return <div>Loading...</div>
+  /*
+    Before app renders, send request to server and send 
+    refresh token and to get a new user access token
+  */
+  useEffect(() => {
+    fetch("http://localhost:8000/refresh_token", {
+      method: "POST",
+      credentials: "include"
+    }).then(async res => {
+      const { userToken } = await res.json();
+      SetAccessToken(userToken);
+      console.log(userToken)
+      setLoading(false);
+    });
+  }, []);
 
-  // return <div>{JSON.stringify(data)}</div>
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+
   return <Router />
 }
 
-export default App;
