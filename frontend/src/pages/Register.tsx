@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
+import { RouteComponentProps } from 'react-router-dom';
 
 const REGISTER_USER = gql`
     mutation Register(
@@ -20,7 +21,7 @@ const REGISTER_USER = gql`
 }
 `
 
-export const Register: React.FC = () => {
+export const Register: React.FC<RouteComponentProps> = ({ history }) => {
     const is_admin = false
     const [firstName, setfirstName] = useState('');
     const [lastName, setlastName] = useState('');
@@ -40,7 +41,11 @@ export const Register: React.FC = () => {
                     is_admin
                 }
             })
+
+            //On successful register, redirect user to home page
             console.log(response)
+            history.push('/')
+            
         }}>
             <div>
                 <input
