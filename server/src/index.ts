@@ -48,7 +48,7 @@ import { verify } from 'jsonwebtoken';
 
   apolloServer.applyMiddleware({ app });
 
-  app.listen(3000, () => {
+  app.listen(8000, () => {
     console.log("server running");
   });
 })();
