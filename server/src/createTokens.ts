@@ -3,7 +3,7 @@ import { sign } from "jsonwebtoken";
 
 export const createuserToken = (user: User) => {
     return sign({ userId: user.user_id }, process.env.ACCESS_TOKEN_SECRET!, {
-        expiresIn: "15m",
+        expiresIn: "20m",
     });
 };
 
@@ -12,7 +12,7 @@ export const createRefreshToken = (user: User) => {
         { userId: user.user_id, tokenVersion: user.tokenV },
         process.env.REFRESH_TOKEN_SECRET!,
         {
-            expiresIn: "7d",
+            expiresIn: "14d",
         },
     );
 };
