@@ -10,7 +10,9 @@ const BYE_QUERY = gql`
 
 
 export const Bye: React.FC = () => {
-    const { data, loading, error } = useQuery(BYE_QUERY)
+    const { data, loading, error } = useQuery(BYE_QUERY, {
+        fetchPolicy: 'network-only'
+    })
 
     if(loading) return <div>Loading..</div>
 
