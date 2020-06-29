@@ -106,11 +106,17 @@ export class UserResolver {
   async register(
     @Arg("email") email: string,
     @Arg("password") password: string,
+    @Arg("firstName") firstName: string,
+    @Arg("lastName") lastName: string,
+    @Arg("is_admin") is_admin: boolean,
   ) {
     try {
       const hashedPassword = await hash(password, 12);
       await User.insert({
+        firstName,
+        lastName,
         email,
+        is_admin,
         password: hashedPassword,
       });
     } catch (err) {
