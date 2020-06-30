@@ -20,9 +20,9 @@ const LOGOUT_USER = gql`
 `;
 
 export const Header: React.FC = () => {
-    const { data } = useQuery(ME_QUERY)
-    const [logout, { client }] = useMutation(LOGOUT_USER) 
-    
+    const { data, loading } = useQuery(ME_QUERY)
+    const [logout, { client }] = useMutation(LOGOUT_USER)
+
     return (
         <div>
             <header>
@@ -39,12 +39,14 @@ export const Header: React.FC = () => {
                     <Link to="/bye">bye</Link>
                 </div>
                 <div>
-                    <button onClick={async () => {
-                        //clear refresh & access user tokens
-                        await logout();
-                        SetAccessToken("");
-                        await client!.resetStore(); 
-                    }}>Logout</button>
+                    {!loading && data && data.me && (
+                        <button onClick={async () => {
+                            //clear refresh & access user tokens
+                            await logout();
+                            SetAccessToken("");
+                            await client!.resetStore();
+                        }}>Logout</button>
+                    )}
                 </div>
                 {data && data.me ? <div>You are logged in as: {data.me.email}</div> : null}
             </header>

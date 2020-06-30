@@ -10,6 +10,7 @@ import {
   Ctx,
   UseMiddleware,
   Int,
+  InputType
 } from "type-graphql";
 import "reflect-metadata";
 import { hash, compare } from "bcryptjs";
@@ -25,6 +26,15 @@ class LoginResponse {
 
   @Field(() => User)
   user: User;
+}
+
+@InputType()
+class UserUpdateInput {
+  @Field(() => String, { nullable: true })
+  firstName?: string;
+
+  @Field(() => String, { nullable: true })
+  lastName?: string;
 }
 
 @Resolver()
@@ -127,6 +137,32 @@ export class UserResolver {
       console.log(err);
       return false;
     }
+    return true;
+  }
+
+  // @Mutation(() => Boolean) 
+  // async updateUser(
+  //   @Arg("user_id", () => Int) user_id: number,
+  //   @Arg("input", () => UserUpdateInput) firstName: string
+  // ) {
+  //   await User.update({ user_id }, input)
+  //   return true;
+  // }
+
+  @Mutation(() => Boolean)
+  async updateUser(
+    @Arg("user_id", () => Int) user_id: number,
+    @Arg("input", () => UserUpdateInput) input: UserUpdateInput
+  ) {
+    await User.update({ user_id }, input);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteUser(
+    @Arg("user_id", () => Int) user_id: number
+  ) {
+    await User.delete({ user_id });
     return true;
   }
 
