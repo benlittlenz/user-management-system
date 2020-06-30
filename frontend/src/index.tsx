@@ -12,6 +12,8 @@ import { ApolloLink, Observable } from "apollo-link";
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 import jwtDecode from "jwt-decode";
 
+import './styles/tailwind.css';
+
 const cache = new InMemoryCache({});
 
 const requestLink = new ApolloLink((operation, forward) =>

@@ -11,14 +11,14 @@ const REGISTER_USER = gql`
         $password: String!,
         $is_admin: Boolean!
         ) {
-  register(
-      firstName: $firstName, 
-      lastName: $lastName,
-      email: $email, 
-      password: $password,
-      is_admin: $is_admin
-    )
-}
+            register(
+                firstName: $firstName, 
+                lastName: $lastName,
+                email: $email, 
+                password: $password,
+                is_admin: $is_admin
+                )
+            }
 `
 
 export const Register: React.FC<RouteComponentProps> = ({ history }) => {

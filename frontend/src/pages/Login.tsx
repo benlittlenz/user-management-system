@@ -13,7 +13,7 @@ const LOGIN_USER = gql`
                 email
             }
         }
-}
+    }
 `
 
 const ME_QUERY = gql`
