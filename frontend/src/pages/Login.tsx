@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 import { RouteComponentProps } from 'react-router-dom';
 import { SetAccessToken } from '../UserToken';
@@ -8,8 +8,21 @@ const LOGIN_USER = gql`
     mutation Login($email: String!, $password: String!) {
         login(email: $email, password: $password) {
             userToken
+            user {
+                user_id
+                email
+            }
         }
 }
+`
+
+const ME_QUERY = gql`
+    query Me {
+        me {
+            user_id
+            email
+        }
+    }
 `
 
 export const Login: React.FC<RouteComponentProps> = ({ history }) => {
@@ -24,6 +37,18 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
                 variables: {
                     email,
                     password,
+                }, 
+                //update cache and store logged in user
+                update: (store, { data }) => {
+                    if(!data) return null;
+                    store.writeQuery({
+                        query: ME_QUERY,
+                        data: {
+                            __typename: 'Query',
+                            me: data.login.user,
+                        }
+                    })
+                    
                 }
             })
 

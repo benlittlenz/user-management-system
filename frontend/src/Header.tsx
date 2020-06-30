@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
+import { SetAccessToken } from './UserToken';
 
 const ME_QUERY = gql`
     query Me {
@@ -11,9 +12,17 @@ const ME_QUERY = gql`
         }
     }
 `
+
+const LOGOUT_USER = gql`
+    mutation Logout {
+        logout
+    }
+`;
+
 export const Header: React.FC = () => {
     const { data } = useQuery(ME_QUERY)
-    console.log(data)
+    const [logout, { client }] = useMutation(LOGOUT_USER) 
+    
     return (
         <div>
             <header>
@@ -29,7 +38,15 @@ export const Header: React.FC = () => {
                 <div>
                     <Link to="/bye">bye</Link>
                 </div>
-        {data && data.me ? <div>You are logged in as: {data.me.email}</div> : null}
+                <div>
+                    <button onClick={async () => {
+                        //clear refresh & access user tokens
+                        await logout();
+                        SetAccessToken("");
+                        await client!.resetStore(); 
+                    }}>Logout</button>
+                </div>
+                {data && data.me ? <div>You are logged in as: {data.me.email}</div> : null}
             </header>
         </div>
 

@@ -38,7 +38,7 @@ export class UserResolver {
   @UseMiddleware(isLoggedIn)
   bye(@Ctx() { payload }: UserContext) {
     console.log(payload);
-    return `YOur id is ${payload!.userId}`;
+    return `user_id is ${payload!.userId}`;
   }
 
   @Query(() => [User])
@@ -53,7 +53,6 @@ export class UserResolver {
 
     if (!authorization) return null;
 
-
     try {
       const token = authorization.split(" ")[1];
       const payload: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
@@ -65,7 +64,11 @@ export class UserResolver {
   }
   @Mutation(() => Boolean)
   async logout(@Ctx() { res }: UserContext) {
-    res.cookie("gdsfs", "");
+    res.cookie("gdsfs", "", {
+      httpOnly: true,
+      path: "/refresh_token"
+    });
+
     return true;
   }
 
@@ -126,4 +129,5 @@ export class UserResolver {
     }
     return true;
   }
+
 }
